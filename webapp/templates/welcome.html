@@ -1,14 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Welcome · Password Policy Lab{% endblock %}
+{% block title %}Welcome{% endblock %}
 {% block content %}
-<section class="card welcome">
-  <p class="eyebrow">Account created</p>
-  <h1>Welcome, {{ username }}</h1>
-  <p>Your accepted password is:</p>
-  <output class="password-output">{{ password }}</output>
-  <p class="note">Shown only because this lab explicitly requires it; it was not stored.</p>
-  <form action="{{ url_for('logout') }}" method="post">
-    <button type="submit" class="secondary">Log out</button>
-  </form>
-</section>
+<h1>Welcome, {{ username }}</h1>
+<p>Your accepted password is: <output>{{ password }}</output></p>
+<p>The password was not stored.</p>
+<form action="{{ url_for('logout') }}" method="post">
+  <button type="submit">Log out</button>
+</form>
 {% endblock %}
