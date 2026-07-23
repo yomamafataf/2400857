@@ -7,10 +7,9 @@ function localPasswordErrors(password) {
   const errors = [];
   if (password.length < 10) errors.push("Use at least 10 characters because MFA is not enabled.");
   if (password.length > 128) errors.push("Use no more than 128 characters.");
-  if ([...password].some((character) => {
-    const code = character.charCodeAt(0);
-    return code < 32 || code > 126;
-  })) errors.push("Use printable ASCII characters, including spaces, only.");
+  if (/[\u0000-\u001f\u007f-\u009f]/u.test(password)) {
+    errors.push("Control characters are not allowed.");
+  }
   return errors;
 }
 

@@ -10,6 +10,7 @@ class PasswordPolicyTests(unittest.TestCase):
 
     def test_printable_ascii_and_spaces_are_allowed(self):
         self.assertFalse(validate_password("long pass phrase", lambda _: False))
+        self.assertFalse(validate_password("unicode-pass-安全", lambda _: False))
         self.assertTrue(validate_password("validlength\n", lambda _: False))
 
     def test_common_password_is_rejected(self):
