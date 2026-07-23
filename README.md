@@ -23,3 +23,10 @@ certificate.
 
 The PostgreSQL table `"2400857"` stores only the username and creation time.
 Submitted passwords are not persisted.
+
+## Continuous integration
+
+`.github/workflows/ci.yml` runs a Python dependency audit, HTTP integration
+checks, and Playwright UI tests. CI uses `docker-compose.ci.yml` to expose only
+the internal Flask service at `http://127.0.0.1:8000`; the normal local stack
+continues to use Nginx and HTTPS.

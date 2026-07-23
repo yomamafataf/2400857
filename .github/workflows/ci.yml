@@ -1,0 +1,88 @@
+name: Web application CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  COMPOSE_PROJECT_NAME: password-lab-ci
+  POSTGRES_DB: password_lab
+  POSTGRES_USER: labapp
+  POSTGRES_PASSWORD: ci-only-password
+  BASE_URL: http://127.0.0.1:8000
+
+jobs:
+  dependency-check:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: python -m pip install --disable-pip-version-check pip-audit
+      - run: pip-audit --requirement webapp/requirements.txt
+
+  integration:
+    name: HTTP integration tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start application
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --build db app
+      - name: Wait for HTTP health check
+        run: |
+          for _ in {1..30}; do
+            curl --fail --silent "$BASE_URL/health" && exit 0
+            sleep 2
+          done
+          exit 1
+      - name: Run integration checks
+        run: python tests/integration_test.py
+      - name: Verify database import and account schema
+        run: |
+          password_count=$(docker compose -f docker-compose.yml -f docker-compose.ci.yml exec -T db \
+            psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Atc "SELECT COUNT(*) FROM common_passwords")
+          password_columns=$(docker compose -f docker-compose.yml -f docker-compose.ci.yml exec -T db \
+            psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Atc \
+            "SELECT COUNT(*) FROM information_schema.columns WHERE table_name='2400857' AND column_name='password'")
+          test "$password_count" -eq 99839
+          test "$password_columns" -eq 0
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml logs --no-color
+      - name: Stop application
+        if: always()
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml down -v
+
+  ui:
+    name: HTTP UI tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Start application
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --build db app
+      - name: Wait for HTTP health check
+        run: |
+          for _ in {1..30}; do
+            curl --fail --silent "$BASE_URL/health" && exit 0
+            sleep 2
+          done
+          exit 1
+      - run: npm run test:ui
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml logs --no-color
+      - name: Stop application
+        if: always()
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml down -v
