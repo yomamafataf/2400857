@@ -23,10 +23,3 @@ certificate.
 
 The PostgreSQL table `"2400857"` stores only the username and creation time.
 Submitted passwords are not persisted.
-
-## Test
-
-```powershell
-python -m unittest discover -s tests -v
-docker compose ps
-```
