@@ -10,8 +10,7 @@ app.config["MAX_CONTENT_LENGTH"] = 16 * 1024
 @app.after_request
 def secure_headers(response):
     response.headers["Content-Security-Policy"] = (
-        "default-src 'self'; script-src 'self'; style-src 'self'; "
-        "img-src 'self'; form-action 'self'; frame-ancestors 'none'"
+        "default-src 'self'; form-action 'self'; frame-ancestors 'none'"
     )
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Referrer-Policy"] = "no-referrer"
