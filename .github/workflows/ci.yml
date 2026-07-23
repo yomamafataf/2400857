@@ -45,7 +45,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Start application
-        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --build db app
+        run: |
+          for _ in 1 2 3; do
+            docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --build db app && exit 0
+            sleep 10
+          done
+          exit 1
       - name: Wait for HTTP health check
         run: |
           for _ in {1..30}; do
@@ -83,7 +88,12 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - name: Start application
-        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --build db app
+        run: |
+          for _ in 1 2 3; do
+            docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --build db app && exit 0
+            sleep 10
+          done
+          exit 1
       - name: Wait for HTTP health check
         run: |
           for _ in {1..30}; do
