@@ -16,6 +16,18 @@ env:
   BASE_URL: http://127.0.0.1:8000
 
 jobs:
+  eslint-security:
+    name: ESLint security scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run lint:security
+
   dependency-check:
     name: Dependency audit
     runs-on: ubuntu-latest

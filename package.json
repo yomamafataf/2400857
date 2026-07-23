@@ -2,9 +2,12 @@
   "name": "owasp-password-policy-lab",
   "private": true,
   "scripts": {
+    "lint:security": "eslint webapp/static tests/ui playwright.config.js eslint.config.js --max-warnings 0",
     "test:ui": "playwright test"
   },
   "devDependencies": {
-    "@playwright/test": "^1.55.0"
+    "@playwright/test": "^1.55.0",
+    "eslint": "^10.7.0",
+    "eslint-plugin-security": "^4.0.1"
   }
 }
