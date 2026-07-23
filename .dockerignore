@@ -1,0 +1,5 @@
+.git
+.env
+certs/*.key
+__pycache__
+*.py[cod]
