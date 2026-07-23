@@ -1,6 +1,6 @@
 # OWASP C7 Password Policy Lab
 
-A concise Flask and PostgreSQL web application demonstrating the OWASP Top 10
+A concise Nginx, Flask, and PostgreSQL web application demonstrating the OWASP Top 10
 Proactive Controls 2024 C7 password requirements without MFA.
 
 ## Password policy
